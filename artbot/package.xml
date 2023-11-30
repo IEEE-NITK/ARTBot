@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
-<package format="3">
+<package format="2">
   <name>artbot</name>
   <version>0.0.0</version>
   <description>Metapackage for ARTBot project</description>
@@ -17,8 +17,7 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
-  <exec_depend>artbot_description</exec_depend>
-  <exec_depend>artbot_simulation</exec_depend>
+  <exec_depend>artbotsim</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
