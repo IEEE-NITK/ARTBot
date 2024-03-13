@@ -74,6 +74,7 @@ private:
   rclcpp::Time last_command_time_;
 
   float meter_;
+  std::string real_name_;
 
   struct TeleportRequest
   {
