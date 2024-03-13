@@ -36,7 +36,7 @@ class BoidsNode(Node):
     def __init__(self):
         super().__init__('boids_node')
         self.flock = Flock(num_boids=3)  # Initialize your flock here
-        self.my_publishers = [self.create_publisher(Twist, f'/artist{i+1}/cmd_vel', 10) for i in range(3)]
+        self.my_publishers = [self.create_publisher(Twist, f'/turtle{i+1}/cmd_vel', 10) for i in range(3)]
 
     def timer_callback(self):
         self.flock.update_boids()
