@@ -28,6 +28,7 @@
   <depend>rclcpp_action</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
+  <exec_depend>ros2launch</exec_depend>
 
   <member_of_group>rosidl_interface_packages</member_of_group>
 
