@@ -29,7 +29,7 @@ Artist::Artist(rclcpp::Node::SharedPtr& nh, const std::string& real_name, const 
 , pen_(QColor(DEFAULT_PEN_R, DEFAULT_PEN_G, DEFAULT_PEN_B))
 {
   pen_.setWidth(3);
-
+  real_name_ = real_name;
   rclcpp::QoS qos(rclcpp::KeepLast(7));
   velocity_sub_ = nh_->create_subscription<geometry_msgs::msg::Twist>(real_name + "/cmd_vel", qos, std::bind(&Artist::velocityCallback, this, std::placeholders::_1));
   pose_pub_ = nh_->create_publisher<artbotsim::msg::Pose>(real_name + "/pose", qos);
@@ -246,6 +246,7 @@ bool Artist::update(double dt, QPainter& path_painter, const QImage& path_image,
   p->theta = orient_;
   p->linear_velocity = std::sqrt(lin_vel_x_ * lin_vel_x_ + lin_vel_y_ * lin_vel_y_);
   p->angular_velocity = ang_vel_;
+  p->src = real_name_;
   pose_pub_->publish(std::move(p));
 
   // Figure out (and publish) the color underneath the artist

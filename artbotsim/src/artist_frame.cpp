@@ -14,7 +14,7 @@ namespace artbotsim
 
 ArtistFrame::ArtistFrame(rclcpp::Node::SharedPtr& node_handle, QWidget* parent, Qt::WindowFlags f)
 : QFrame(parent, f)
-, path_image_(500, 500, QImage::Format_ARGB32)
+, path_image_(800, 640, QImage::Format_ARGB32)
 , path_painter_(&path_image_)
 , frame_count_(0)
 , id_counter_(0)
