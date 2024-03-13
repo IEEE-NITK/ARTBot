@@ -18,8 +18,8 @@
         <li>
             <a href="#literature-survey">Literature Survey</a>
             <ul>
-                <li><a href="#robot-operating-system--2">Robot Operating System 2</a></li>
-                <li><a href="#basic-terminologies-in-ros-2">Basic Terminologies in ROS</a></li>
+                <li><a href="#robot-operating-system-2">Robot Operating System 2</a></li>
+                <li><a href="#basic-terminologies-in-ros-2">Basic Terminologies in ROS 2</a></li>
                 <li><a href="#python-programming-language">Python Programming Language</a></li>
                 <li><a href="#swarm-robotics">Swarm Robotics</a></li>
             </ul>
@@ -135,10 +135,10 @@ colcon build
 To launch the ARTBot simulation use the command
 
 ```bash
-ros2 run artbotsim artbotsim_node
+ros2 launch artbotsim artbotsim.launch.py
 ```
 
-![Alt text](assets/artbotsim.jpg)
+![Alt text](assets/artbotsim.png)
 <br>
 *ARTBot Simulation*
 
