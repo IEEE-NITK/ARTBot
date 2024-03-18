@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from artbotsim.msg import Pose
+import math
 from math import atan2, sqrt
 import re
 
@@ -11,101 +12,142 @@ class ArtistBot(Node):
         self.bot_name = bot_name
         self.target_coordinates = target_coordinates_list
         self.current = [0.0, 0.0, 0.0]
-        self.distances = {}
-        self.pair = {name: [] for name in target_coordinates_list}
-        self.i=0
+        self.i = 0
+        self.letter=1
         self.pose_subscribers = [self.create_subscription(Pose, f'{bot_name}/pose', self.pose_callback, 10)]
         self.velocity_publisher = self.create_publisher(Twist, f'{bot_name}/cmd_vel', 10)
+        self.integral_error_x = 0.0
+        self.integral_error_y = 0.0
+        self.prev_error_x = 0.0
+        self.prev_error_y = 0.0
+
+        self.timer = self.create_timer(7.0, self.update_targets)
 
     def pose_callback(self, msg):
-        bot_name = self.bot_name
+        bot_name = self.get_name()
         characters_to_remove = "[artist]"
         self.i = int(re.sub(characters_to_remove, "", bot_name))
         self.current[0] = msg.x
         self.current[1] = msg.y
         self.current[2] = msg.theta
-        # self.update_distances(bot_name)
-        # if bot_name == self.bot_name:
         self.calculate_and_publish_velocity(bot_name)
 
-    # def update_distances(self, bot_name):
-    #     self.distances[bot_name] = {}
-    #     for other_bot, other_pos in self.current.items():
-    #         if other_bot != bot_name:
-    #             distance = sqrt((self.current[bot_name][0] - other_pos[0])**2 + (self.current[bot_name][1] - other_pos[1])**2)
-    #             self.distances[bot_name][other_bot] = distance
-
-    # def find_nearest_available_pair(self, bot_name):
-    #     sorted_distances = sorted(self.distances[bot_name].items(), key=lambda x: x[1])
-    #     available_bots = [bot for bot, _ in sorted_distances if self.target_coordinates[bot]]
-    #     self.assigned_pairs = set(pair for pairs in self.pair.values() for pair in pairs)
-
-    #     for i in range(len(available_bots)):
-    #         bot1 = available_bots[i]
-    #         for j in range(i + 1, len(available_bots)):
-    #             bot2 = available_bots[j]
-    #             pair = (bot1, bot2)
-
-    #             if pair not in self.assigned_pairs and bot1 not in self.pair.values() and bot2 not in self.pair.values():
-    #                 self.pair[bot_name] = tuple(pair)
-    #                 self.assigned_pairs.add(pair)
-    #                 return
-
-        # self.pair[bot_name] = [] 
-
+    def update_targets(self):
+        target = {
+            1: [[1, 4], [3, 4], [3, 5], [3, 6], [3, 7], [3, 8], [1, 8], [3, 8], [5, 8], [3, 8], [3, 7], [3, 6], [3, 5], [3, 4], [5, 4]],
+            2: [[9, 8], [8, 8], [7, 8], [6, 8], [6, 7], [6, 6], [7, 6], [8, 6], [7, 6], [6, 6], [6, 5], [6, 4], [7, 4], [8, 4], [9, 4]],
+            3: [[13, 8], [12, 8], [11, 8], [10, 8], [10, 7], [10, 6], [11, 6], [12, 6], [11, 6], [10, 6], [10, 5], [10, 4], [11, 4], [12, 4], [13, 4]],
+            4: [[17, 8], [16, 8], [15, 8], [14, 8], [14, 7], [14, 6], [15, 6], [16, 6], [15, 6], [14, 6], [14, 5], [14, 4], [15, 4], [16, 4], [17, 4]]
+        }
+        for i in range(1, 31):
+            bot_name = f'artist{i}'
+            if (i % 2) != 0:
+                self.target_coordinates[bot_name] = target[self.letter][int((i - 1) / 2)]
+                self.target_coordinates[bot_name][0],self.target_coordinates[bot_name][1]=self.target_coordinates[bot_name][0],self.target_coordinates[bot_name][1]+(10-3*self.letter)
+            else:
+                self.target_coordinates[bot_name] = None
+        if(self.letter<4):
+            self.letter=self.letter+1
+        else:
+            self.letter=1
+            
     def calculate_and_publish_velocity(self, bot_name):
-        current_position = {bot_name: self.current}
-        current_angle = atan2(current_position[bot_name][1]-0.0, current_position[bot_name][0]-0.0)
-        # print(current_position)
+        current_position = self.current
         if self.target_coordinates[bot_name]:
             target = self.target_coordinates[bot_name]
-            distance_to_target = sqrt((target[0] - current_position[bot_name][0])**2 + (target[1] - current_position[bot_name][1])**2)
-            angle_to_target = atan2(target[1] - current_position[bot_name][1], target[0] - current_position[bot_name][0])
-            if distance_to_target > 0.1:
-                linear_velocity=2.0
-                angular_velocity = 0.5*(angle_to_midpoint-current_position[bot_name][2])
-            else:
-                linear_velocity = 0.0 
-                angular_velocity = 0.0
-        else:
-            # if not self.pair[bot_name] or len(self.pair[bot_name]) < 2:
-            #     self.find_nearest_available_pair(bot_name)
+            distance_to_target = sqrt((target[0] - current_position[0])**2 + (target[1] - current_position[1])**2)
+            angle_to_target = atan2(target[1] - current_position[1], target[0] - current_position[0])
 
-            # if self.pair[bot_name] and len(self.pair[bot_name]) == 2:
-            # if (self.i-1)==0:
-            #     lower='artist10'
-            # else:
-            #     lower=f'artist{self.i-1}'
-            target1 = self.target_coordinates[f'artist{self.i-1}']
-            target2 = self.target_coordinates[f'artist{self.i+1}']
+            angle_to_target = math.atan2(math.sin(angle_to_target), math.cos(angle_to_target))
+
+            kp_linear = 0.5
+            ki_linear = 0.0001
+            kd_linear = 0.2
+            kp_angular = 4.0
+            ki_angular = 0.0002
+            kd_angular = 0.3
+
+            linear_error = distance_to_target
+            angular_error = angle_to_target - current_position[2]
+
+            # Derivative terms
+            derivative_error_x = linear_error - self.prev_error_x
+            derivative_error_y = angular_error - self.prev_error_y
+
+            self.integral_error_x += linear_error
+            self.integral_error_y += angular_error
+
+            angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
+            linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
+
+            self.prev_error_x = linear_error
+            self.prev_error_y = angular_error
+
+            if abs(angle_to_target) < 0.01:
+                angular_velocity = 0.0
+            if distance_to_target < 0.01:
+                linear_velocity = 0.0
+                angular_velocity = 0.0
+                self.integral_error_x = 0.0
+                self.integral_error_y = 0.0
+
+        else:
+            target1 = self.target_coordinates[f'artist{self.i - 1}']
+            if self.i == 30:
+                target2 = self.target_coordinates[f'artist{1}']
+            else:
+                target2 = self.target_coordinates[f'artist{self.i + 1}']
             midpoint_x = (target1[0] + target2[0]) / 2
             midpoint_y = (target1[1] + target2[1]) / 2
-            angle_to_midpoint = atan2(midpoint_y - current_position[bot_name][1], midpoint_x - current_position[bot_name][0])
-            distance_to_midpoint = sqrt((midpoint_x - current_position[bot_name][0])**2 + (midpoint_y - current_position[bot_name][1])**2)
-            if distance_to_midpoint > 0.1:
-                linear_velocity = 1.0
-                angular_velocity = 1*(angle_to_midpoint-current_position[bot_name][2])
-            else:
-                linear_velocity = 0.0 
+            angle_to_midpoint = atan2(midpoint_y - current_position[1], midpoint_x - current_position[0])
+            distance_to_midpoint = sqrt((midpoint_x - current_position[0])**2 + (midpoint_y - current_position[1])**2)
+
+            angle_to_midpoint = math.atan2(math.sin(angle_to_midpoint), math.cos(angle_to_midpoint))
+
+            kp_linear = 0.5
+            ki_linear = 0.0001
+            kd_linear = 0.2
+            kp_angular = 4.0
+            ki_angular = 0.0002
+            kd_angular = 0.3
+
+            linear_error = distance_to_midpoint
+            angular_error = angle_to_midpoint - current_position[2]
+
+            derivative_error_x = linear_error - self.prev_error_x
+            derivative_error_y = angular_error - self.prev_error_y
+
+            self.integral_error_x += linear_error
+            self.integral_error_y += angular_error
+
+            angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
+            linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
+
+            self.prev_error_x = linear_error
+            self.prev_error_y = angular_error
+
+            # Threshold clause
+            if abs(angle_to_midpoint) < 0.01:
                 angular_velocity = 0.0
-                
-            # else:
-            #     linear_velocity = 0.0
-            #     angular_velocity = 0.0
+            if distance_to_midpoint < 0.01:
+                linear_velocity = 0.0
+                angular_velocity = 0.0
+                self.integral_error_x = 0.0
+                self.integral_error_y = 0.0
 
         twist_msg = Twist()
         twist_msg.linear.x = linear_velocity
         twist_msg.angular.z = angular_velocity
         self.velocity_publisher.publish(twist_msg)
 
+
 def main(args=None):
     rclpy.init(args=args)
-
     target_coordinates_list = {}
-    for i in range(1, 2):
+    for i in range(1, 31):
         bot_name = f'artist{i}'
-        if (i%2)!=0:
-            target_coordinates_list[bot_name] = [i, i]
+        if (i % 2) != 0:
+            target_coordinates_list[bot_name] = [1,1]
         else:
             target_coordinates_list[bot_name] = None
 
