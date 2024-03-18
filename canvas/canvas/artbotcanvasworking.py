@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+# from artbotsim.msg import Target
 import cv2
 import numpy as np
 
@@ -11,12 +12,15 @@ class artbotcanvas(Node):
         self.mouse_dragging = False
         self.path = []
         self.collect_points = []
-        self.total_segment_points = 100
+        self.total_segment_points = 30
 
         self.display_image = np.ones((720, 1280, 3)) * 255
 
         cv2.namedWindow('ARTBOT Canvas', cv2.WINDOW_NORMAL)
         cv2.setMouseCallback('ARTBOT Canvas', self.mouse_callback)
+
+        # Create a publisher for the divided points
+        # self.divided_points_pub = self.create_publisher(PointCloud2, 'divided_points', 10)
 
     def update_display(self):
         mouse_coordinates_text = f'Current Mouse Coordinates: {self.mouse_coordinates[0]}, {self.mouse_coordinates[1]}'
@@ -25,9 +29,6 @@ class artbotcanvas(Node):
         path_length = sum(np.sqrt((self.path[i][0] - self.path[i - 1][0]) ** 2 + (self.path[i][1] - self.path[i - 1][1]) ** 2) 
                           for i in range(1, len(self.path)))
 
-        # for i in range(1, len(self.path)):
-        #     cv2.line(self.display_image, self.path[i - 1], self.path[i], (0, 0, 255), 2)
-        # print('Path:',self.path)
         def draw_line(self, i):
             cv2.line(self.display_image, self.path[i - 1], self.path[i], (0, 0, 255), 2)
             return self.display_image
@@ -61,28 +62,31 @@ class artbotcanvas(Node):
                 self.collect_points.append((x, y))
                 cv2.circle(self.display_image, (x, y), 5, (255, 0, 0), -1)
                 cv2.putText(self.display_image, str(len(self.collect_points)),
-                    (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                            (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
                 running_length -= segment_length
             running_length += segment
 
+        # Display points on the canvas
         collect_points_text = f'All collected points: {self.collect_points}'
         cv2.putText(self.display_image, collect_points_text,
                     (5, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
         cv2.imshow('ARTBOT Canvas', self.display_image)
-        # cv2.waitKey(1)
         cv2.waitKey(2500)
+
+        # Publish the list of divided points
+        # msg = PointCloud2()
+        # Fill in your point cloud message with the collected points
+        # Assuming each point is represented as a geometry_msgs/Point32 message
+        # Example: msg.points = [Point32(x=pt[0], y=pt[1], z=0) for pt in self.collect_points]
+        # self.divided_points_pub.publish(msg)
+
         self.collect_points = []
         self.path = []
 
-    def close(self):
-        key = cv2.waitKey(1) & 0xff
-        if key==ord('q'):
-            cv2.destroyAllWindows()
+
 
     def mouse_callback(self, event, x, y, flags, param):
-        # self.path = []
         if event == cv2.EVENT_LBUTTONDOWN:
-            # print('Mouse clicked with path:',self.path)
             self.mouse_dragging = True
             self.path.append((x, y))
 
@@ -93,15 +97,17 @@ class artbotcanvas(Node):
 
         elif event == cv2.EVENT_LBUTTONUP:
             self.mouse_dragging = False
-            # print('Mouse lifted with path:',self.path)
 
         elif event == cv2.EVENT_RBUTTONDOWN:
             self.divide_path()
             self.path = []
-            self.close()
-            
+
+        # elif event == cv2.EVENT_KEYDOWN:  # Check if a key is pressed
+        #     if cv2.waitKey(1) & 0xFF == ord('q'):  # Check if the pressed key is 'q'
+        #         cv2.destroyAllWindows()  # Close the window
+
         return self.path
-    
+
     
 def main(args=None):
     rclpy.init(args=args)
