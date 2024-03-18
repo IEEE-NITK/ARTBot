@@ -1,3 +1,4 @@
+
 from setuptools import find_packages, setup
 
 package_name = 'canvas'
@@ -16,10 +17,12 @@ setup(
     maintainer='ciel',
     maintainer_email='prudhvinallagatla21@gmail.com',
     description='TODO: Package description',
-    license='Apache-2.0',
+    license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'canvasmain = canvas.canvasmain:main'
         ],
     },
 )
+
