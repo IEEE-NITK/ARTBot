@@ -5,6 +5,7 @@ from artbotsim.msg import Pose
 from artbotsim.msg import Target
 import math
 from math import atan2, sqrt
+from math import pi as p
 import re
 
 class ArtistBot(Node):
@@ -37,7 +38,7 @@ class ArtistBot(Node):
                 self.target[bot_name] = None
 		    
     def pose_callback(self, msg):
-        bot_name = self.get_name()
+        bot_name = msg.src
         characters_to_remove = "[artist]"
         self.i = int(re.sub(characters_to_remove, "", bot_name))
         self.current[0] = msg.x
@@ -73,10 +74,14 @@ class ArtistBot(Node):
 
             self.integral_error_x += linear_error
             self.integral_error_y += angular_error
-
-            angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
-            linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
-
+            
+            if abs(angle_to_target) > p/2:
+                angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
+                linear_velocity = -(kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x)
+            else:
+                angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
+                linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
+            
             self.prev_error_x = linear_error
             self.prev_error_y = angular_error
 
@@ -117,8 +122,12 @@ class ArtistBot(Node):
             self.integral_error_x += linear_error
             self.integral_error_y += angular_error
 
-            angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
-            linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
+            if abs(angle_to_target) > p/2:
+                angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
+                linear_velocity = -(kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x)
+            else:
+                angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
+                linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
 
             self.prev_error_x = linear_error
             self.prev_error_y = angular_error
