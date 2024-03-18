@@ -46,7 +46,23 @@ class ArtistBot(Node):
         self.calculate_and_publish_velocity(bot_name)
 
     def update_targets(self):
-        self.target_coordinates=self.target
+        target = {
+            1: [[1, 4], [3, 4], [3, 5], [3, 6], [3, 7], [3, 8], [1, 8], [3, 8], [5, 8], [3, 8], [3, 7], [3, 6], [3, 5], [3, 4], [5, 4]],
+            2: [[9, 8], [8, 8], [7, 8], [6, 8], [6, 7], [6, 6], [7, 6], [8, 6], [7, 6], [6, 6], [6, 5], [6, 4], [7, 4], [8, 4], [9, 4]],
+            3: [[13, 8], [12, 8], [11, 8], [10, 8], [10, 7], [10, 6], [11, 6], [12, 6], [11, 6], [10, 6], [10, 5], [10, 4], [11, 4], [12, 4], [13, 4]],
+            4: [[17, 8], [16, 8], [15, 8], [14, 8], [14, 7], [14, 6], [15, 6], [16, 6], [15, 6], [14, 6], [14, 5], [14, 4], [15, 4], [16, 4], [17, 4]]
+        }
+        for i in range(1, 31):
+            bot_name = f'artist{i}'
+            if (i % 2) != 0:
+                self.target_coordinates[bot_name] = target[self.letter][int((i - 1) / 2)]
+                self.target_coordinates[bot_name][0],self.target_coordinates[bot_name][1]=self.target_coordinates[bot_name][0],self.target_coordinates[bot_name][1]+(10-3*self.letter)
+            else:
+                self.target_coordinates[bot_name] = None
+        if(self.letter<4):
+            self.letter=self.letter+1
+        else:
+            self.letter=1
             
     def calculate_and_publish_velocity(self, bot_name):
         current_position = self.current
