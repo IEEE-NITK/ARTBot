@@ -27,6 +27,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/RotateAbsolute.action"
   "msg/Color.msg"
   "msg/Pose.msg"
+  "msg/Target.msg"
   "srv/Kill.srv"
   "srv/SetPen.srv"
   "srv/Spawn.srv"
