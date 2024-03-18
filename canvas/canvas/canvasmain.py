@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-# from artbotsim.msg import Target
+from artbotsim.msg import Target
 import cv2
 import numpy as np
 
@@ -13,6 +13,7 @@ class artbotcanvas(Node):
         self.path = []
         self.collect_points = []
         self.total_segment_points = 30
+        self.target_publisher = self.create_publisher(Target, 'target', 10)
 
         self.display_image = np.ones((720, 1280, 3)) * 255
 
@@ -72,6 +73,41 @@ class artbotcanvas(Node):
                     (5, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
         cv2.imshow('ARTBOT Canvas', self.display_image)
         cv2.waitKey(2500)
+
+        target_msg = Target()
+        
+        target_msg.target1_x,target_msg.target1_x=self.collect_points[0][0],self.collect_points[0][1]
+        target_msg.target2_x,target_msg.target2_x=self.collect_points[1][0],self.collect_points[1][1]
+        target_msg.target3_x,target_msg.target3_x=self.collect_points[2][0],self.collect_points[2][1]
+        target_msg.target4_x,target_msg.target4_x=self.collect_points[3][0],self.collect_points[3][1]
+        target_msg.target5_x,target_msg.target5_x=self.collect_points[4][0],self.collect_points[4][1]
+        target_msg.target6_x,target_msg.target6_x=self.collect_points[5][0],self.collect_points[5][1]
+        target_msg.target7_x,target_msg.target7_x=self.collect_points[6][0],self.collect_points[6][1]
+        target_msg.target8_x,target_msg.target8_x=self.collect_points[7][0],self.collect_points[7][1]
+        target_msg.target9_x,target_msg.target9_x=self.collect_points[8][0],self.collect_points[8][1]
+        target_msg.target10_x,target_msg.target10_x=self.collect_points[9][0],self.collect_points[9][1]
+        target_msg.target11_x,target_msg.target11_x=self.collect_points[10][0],self.collect_points[10][1]
+        target_msg.target12_x,target_msg.target12_x=self.collect_points[11][0],self.collect_points[11][1]
+        target_msg.target13_x,target_msg.target13_x=self.collect_points[12][0],self.collect_points[12][1]
+        target_msg.target14_x,target_msg.target14_x=self.collect_points[13][0],self.collect_points[13][1]
+        target_msg.target15_x,target_msg.target15_x=self.collect_points[14][0],self.collect_points[14][1]
+        target_msg.target16_x,target_msg.target16_x=self.collect_points[15][0],self.collect_points[15][1]
+        target_msg.target17_x,target_msg.target17_x=self.collect_points[16][0],self.collect_points[16][1]
+        target_msg.target18_x,target_msg.target18_x=self.collect_points[17][0],self.collect_points[17][1]
+        target_msg.target19_x,target_msg.target19_x=self.collect_points[18][0],self.collect_points[18][1]
+        target_msg.target20_x,target_msg.target20_x=self.collect_points[19][0],self.collect_points[19][1]
+        target_msg.target21_x,target_msg.target21_x=self.collect_points[20][0],self.collect_points[20][1]
+        target_msg.target22_x,target_msg.target22_x=self.collect_points[21][0],self.collect_points[21][1]
+        target_msg.target23_x,target_msg.target23_x=self.collect_points[22][0],self.collect_points[22][1]
+        target_msg.target24_x,target_msg.target24_x=self.collect_points[23][0],self.collect_points[23][1]
+        target_msg.target25_x,target_msg.target25_x=self.collect_points[24][0],self.collect_points[24][1]
+        target_msg.target26_x,target_msg.target26_x=self.collect_points[25][0],self.collect_points[25][1]
+        target_msg.target27_x,target_msg.target27_x=self.collect_points[26][0],self.collect_points[26][1]
+        target_msg.target28_x,target_msg.target28_x=self.collect_points[27][0],self.collect_points[27][1]
+        target_msg.target29_x,target_msg.target29_x=self.collect_points[28][0],self.collect_points[28][1]
+        target_msg.target30_x,target_msg.target30_x=self.collect_points[29][0],self.collect_points[29][1]
+
+        self.target_publisher.publish(target_msg)
 
         # Publish the list of divided points
         # msg = PointCloud2()
