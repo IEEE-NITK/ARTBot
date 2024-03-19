@@ -26,7 +26,7 @@ class ArtistBot(Node):
         self.prev_error_y = 0.0
 
         self.timer = self.create_timer(7.0, self.update_targets)
-
+        
     def target_callback(self, msg):
         for i in range(1, 31):
             bot_name = f'artist{i}'
@@ -68,7 +68,6 @@ class ArtistBot(Node):
             linear_error = distance_to_target
             angular_error = angle_to_target - current_position[2]
 
-            # Derivative terms
             derivative_error_x = linear_error - self.prev_error_x
             derivative_error_y = angular_error - self.prev_error_y
 
