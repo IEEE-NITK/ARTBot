@@ -32,8 +32,8 @@ class ArtistBot(Node):
             bot_name = f'artist{i}'
             if (i % 2) != 0:
                 x = getattr(msg, f'target{i}_x')
-                y = getattr(msg, f'target{i}_y')
-                self.target[bot_name] = [x, y]
+                y = 720 - getattr(msg, f'target{i}_y')
+                self.target[bot_name] = [x/64, y/48]
             else:
                 self.target[bot_name] = None
 		    
@@ -48,6 +48,7 @@ class ArtistBot(Node):
 
     def update_targets(self):
         self.target_coordinates=self.target
+        print(self.target_coordinates)
             
     def calculate_and_publish_velocity(self, bot_name):
         current_position = self.current
@@ -74,12 +75,9 @@ class ArtistBot(Node):
             self.integral_error_x += linear_error
             self.integral_error_y += angular_error
             
-            if abs(angle_to_target) > p/2:
-                angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
-                linear_velocity = -(kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x)
-            else:
-                angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
-                linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
+           
+            angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
+            linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
             
             self.prev_error_x = linear_error
             self.prev_error_y = angular_error
@@ -121,12 +119,9 @@ class ArtistBot(Node):
             self.integral_error_x += linear_error
             self.integral_error_y += angular_error
 
-            if abs(angle_to_target) > p/2:
-                angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
-                linear_velocity = -(kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x)
-            else:
-                angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
-                linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
+       
+            angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
+            linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
 
             self.prev_error_x = linear_error
             self.prev_error_y = angular_error
