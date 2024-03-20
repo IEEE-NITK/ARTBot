@@ -8,7 +8,7 @@ class artbotcanvas(Node):
     def __init__(self):
         super().__init__('artbotcanvas')
         self.create_timer(0.001, self.update_display)
-        self.mouse_coordinates = (0, 720)  # Initialize mouse coordinates at bottom-left
+        self.mouse_coordinates = (0, 0)  # Initialize mouse coordinates at bottom-left
         self.mouse_dragging = False
         self.path = []
         self.collect_points = []
