@@ -33,7 +33,7 @@ class ArtistBot(Node):
             if (i % 2) != 0:
                 x = getattr(msg, f'target{i}_x')
                 y = 720 - getattr(msg, f'target{i}_y')
-                self.target[bot_name] = [x/64, y/48]
+                self.target[bot_name] = [x/64, y/40]
             else:
                 self.target[bot_name] = None
 		    
