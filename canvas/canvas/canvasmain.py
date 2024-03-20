@@ -73,7 +73,7 @@ class artbotcanvas(Node):
         cv2.waitKey(2500)
 
         target_msg = Target()
-        for i, point in enumerate(self.collect_points[:30], start=1):
+        for i, point in enumerate(self.collect_points[:self.total_segment_points], start=1):
             setattr(target_msg, f'target{i}_x', point[0])
             setattr(target_msg, f'target{i}_y', point[1])
 
