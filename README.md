@@ -147,10 +147,38 @@ To move each of the robot around, we will use teleop_twist_keyboard which is a p
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --remap cmd_vel:=/<bot_name>/cmd_vel
 ```
+## Implementation
+
+### Swarm Algorithm: 
+
+### Swarm Algorithm: Boid's Algorithm
+
+![Boids Algorithm](assets/boids.jpg)
+<br>
+*Boids Algorithm*
+
+Boids is an artificial life program that produces startlingly realistic simulations of flocking behavior. Each "boid" (which is an abbreviation of "bird-oid object") follows a very simple set of rules. These rules can be summarized as follows:
+
+- Separation: boids move away from other boids that are too close
+- Alignment: boids attempt to match the velocities of their neighbors
+- Cohesion: boids move toward the center of mass of their neighbors
+
+> This project has tried to use this algorithm but it is yet to be properly developed
+
+### Canvas
+
+The user interface for the project (the canvas) is made using a simple python3 script that uses opencv.
+
+The drawing is made by handling mouse clicks and mouse movement events which can be done using the mouse event handling feature of opencv.
+
+To process and transfer the image from the canvas to the artbot simulation, the user just needs to use the right mouse button.
 
 ## References
 
 1. [ROS 2 Wiki](https://docs.ros.org/en/iron/index.html)
+2. [Boids Algorithms](https://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.html)
+3. [Swarm robotics: A Review from the Swarm Engineering Perspective
+](https://link.springer.com/article/10.1007/s11721-012-0075-2)
 
 ## Project Mentors:
 
