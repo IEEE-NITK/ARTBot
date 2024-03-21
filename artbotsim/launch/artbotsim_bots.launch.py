@@ -46,16 +46,4 @@ def generate_launch_description():
             y = y - 2
         ld.add_action(spawn_bot)
 
-    artbot_swarm_cotroller = Node(
-        package="swarm_algo",
-        executable="artist_bot",
-    )
-    ld.add_action(artbot_swarm_cotroller)
-
-    artbot_canvas = Node(
-        package="canvas",
-        executable="canvasmain",
-    )
-    ld.add_action(artbot_canvas)
-
     return ld

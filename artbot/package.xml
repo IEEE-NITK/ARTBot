@@ -18,6 +18,8 @@
   <test_depend>ament_lint_common</test_depend>
 
   <exec_depend>artbotsim</exec_depend>
+  <exec_depend>swarm_algo</exec_depend>
+  <exec_depend>canvas</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
