@@ -15,7 +15,7 @@ class artbotcanvas(Node):
         self.total_segment_points = 30
         self.target_publisher = self.create_publisher(Target, 'target', 10)
 
-        self.display_image = np.ones((720, 1280, 3)) * 255
+        self.display_image = np.ones((810, 990, 3)) * 255
 
         cv2.namedWindow('ARTBOT Canvas', cv2.WINDOW_NORMAL)
         cv2.setMouseCallback('ARTBOT Canvas', self.mouse_callback)
@@ -23,13 +23,13 @@ class artbotcanvas(Node):
     def update_display(self):
         mouse_coordinates_text = f'Current Mouse Coordinates: {self.mouse_coordinates[0]}, {self.mouse_coordinates[1]}'
 
-        self.display_image = np.ones((720, 1280, 3)) * 255
+        self.display_image = np.ones((810, 990, 3)) * 255
         path_length = sum(np.sqrt((self.path[i][0] - self.path[i - 1][0]) ** 2 + (self.path[i][1] - self.path[i - 1][1]) ** 2) 
                           for i in range(1, len(self.path)))
 
         def draw_line(self, i):
-            cv2.line(self.display_image, (self.path[i - 1][0], 720 - self.path[i - 1][1]),
-                     (self.path[i][0], 720 - self.path[i][1]), (0, 0, 255), 2)
+            cv2.line(self.display_image, (self.path[i - 1][0], 810 - self.path[i - 1][1]),
+                     (self.path[i][0], 810 - self.path[i][1]), (0, 0, 255), 2)
             return self.display_image
         
         for i in range(1, len(self.path)):
@@ -38,9 +38,9 @@ class artbotcanvas(Node):
         path_length_text = f'Path Length: {round(path_length, 3)} px'
 
         cv2.putText(self.display_image, mouse_coordinates_text,
-                    (5, 695), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                    (5, 785), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
         cv2.putText(self.display_image, path_length_text,
-                    (5, 675), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                    (5, 765), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
 
         cv2.imshow('ARTBOT Canvas', self.display_image)
         cv2.waitKey(1)
@@ -57,7 +57,7 @@ class artbotcanvas(Node):
             while running_length + segment > segment_length:
                 ratio = (segment_length - running_length) / segment
                 x = round(self.path[i - 1][0] * (1 - ratio) + self.path[i][0] * ratio)
-                y = round(720 - (self.path[i - 1][1] * (1 - ratio) + self.path[i][1] * ratio))  # Flip y-coordinate
+                y = round(810 - (self.path[i - 1][1] * (1 - ratio) + self.path[i][1] * ratio))  # Flip y-coordinate
                 self.collect_points.append((x, y))
                 cv2.circle(self.display_image, (x, y), 5, (255, 0, 0), -1)
                 cv2.putText(self.display_image, str(len(self.collect_points)),
@@ -68,7 +68,7 @@ class artbotcanvas(Node):
         # Display points on the canvas
         collect_points_text = f'All collected points: {self.collect_points}'
         cv2.putText(self.display_image, collect_points_text,
-                    (5, 655), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                    (5, 745), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
         cv2.imshow('ARTBOT Canvas', self.display_image)
         cv2.waitKey(2500)
 
@@ -82,7 +82,7 @@ class artbotcanvas(Node):
         self.path = []
 
     def mouse_callback(self, event, x, y, flags, param):
-        y = 720 - y  # Flip y-coordinate
+        y = 810 - y  # Flip y-coordinate
 
         if event == cv2.EVENT_LBUTTONDOWN:
             self.mouse_dragging = True
