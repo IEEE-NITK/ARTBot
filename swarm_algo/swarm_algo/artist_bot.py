@@ -8,6 +8,7 @@ from math import atan2, sqrt  # Import the atan2 and sqrt functions from the mat
 from math import pi as p  # Import pi from the math module and alias it as 'p'
 import re  # Import the regular expression module
 
+bots = 50  # Number of bots
 class ArtistBot(Node):
     def __init__(self, bot_name, target_coordinates_list):
         super().__init__(bot_name)  # Initialize the Node with the bot_name
@@ -29,7 +30,7 @@ class ArtistBot(Node):
         
     def target_callback(self, msg):
         # Update the target positions for odd-numbered bots
-        for i in range(1, 31):  # Loop through bot numbers 1 to 30
+        for i in range(1, bots):  # Loop through bot numbers 1 to 30
             bot_name = f'artist{i}'  # Construct the bot name
             if (i % 2) != 0:  # Check if the bot number is odd
                 x = getattr(msg, f'target{i}_x')  # Get the x-coordinate of the target from the message
@@ -45,57 +46,63 @@ class ArtistBot(Node):
         self.current[0] = msg.x  # Update the current x-coordinate from the message
         self.current[1] = msg.y  # Update the current y-coordinate from the message
         self.current[2] = msg.theta  # Update the current orientation from the message
+        if self.i==0:    
+            print(self.current)
         self.calculate_and_publish_velocity(bot_name)  # Call the function to calculate and publish the velocity
 
     def update_targets(self):
         self.target_coordinates = self.target  # Update the target coordinates list
-        print(self.target_coordinates)  # Print the updated target coordinates list
 
     def calculate_and_publish_velocity(self, bot_name):
         current_position = self.current  # Get the current position of the bot
-
+        angular_velocity = 0.0
+        linear_velocity = 0.0
+        error_threshold = 0.015  # Error threshold for stopping at the target
+                # PID controller gains
+        kp_linear = 0.28  # Proportional gain for linear velocity
+        ki_linear = 0.000  # Integral gain for linear velocity
+        kd_linear = 0.0008  # Derivative gain for linear velocity
+        kp_angular = 2.35  # Proportional gain for angular velocity
+        ki_angular = 0.000  # Integral gain for angular velocity
+        kd_angular = 0.065  # Derivative gain for angular velocity
+        
         if self.target_coordinates[bot_name]:  # If the bot has a target
             target = self.target_coordinates[bot_name]  # Get the target position
             distance_to_target = sqrt((target[0] - current_position[0])**2 + (target[1] - current_position[1])**2)  # Calculate the distance to the target
             angle_to_target = atan2(target[1] - current_position[1], target[0] - current_position[0])  # Calculate the angle to the target
             angle_to_target = math.atan2(math.sin(angle_to_target), math.cos(angle_to_target))  # Normalize the angle to the target
-
-            # PID controller gains
-            kp_linear = 0.5  # Proportional gain for linear velocity
-            ki_linear = 0.0001  # Integral gain for linear velocity
-            kd_linear = 0.2  # Derivative gain for linear velocity
-            kp_angular = 4.0  # Proportional gain for angular velocity
-            ki_angular = 0.0002  # Integral gain for angular velocity
-            kd_angular = 0.3  # Derivative gain for angular velocity
-
+            
             linear_error = distance_to_target  # Linear error is the distance to the target
             angular_error = angle_to_target - current_position[2]  # Angular error is the difference between the angle to the target and the current orientation
-
-            derivative_error_x = linear_error - self.prev_error_x  # Calculate the derivative error for linear velocity
-            derivative_error_y = angular_error - self.prev_error_y  # Calculate the derivative error for angular velocity
-
-            self.integral_error_x += linear_error  # Update the integral error for linear velocity
-            self.integral_error_y += angular_error  # Update the integral error for angular velocity
-            
+        
             # Calculate linear and angular velocities using PID controller
-            angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
-            linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
-            
-            self.prev_error_x = linear_error  # Update the previous linear error
-            self.prev_error_y = angular_error  # Update the previous angular error
-
+            if abs(angular_error) > error_threshold:
+                derivative_error_y = angular_error - self.prev_error_y  # Calculate the derivative error for angular velocity
+                self.integral_error_y += angular_error  # Update the integral error for angular velocity
+                angular_velocity = kp_angular * angular_error + ki_angular * 0.1* self.integral_error_y + kd_angular * derivative_error_y / 0.1
+                self.prev_error_y = angular_error  # Update the previous angular error
+                derivative_error_x = linear_error - self.prev_error_x  # Calculate the derivative error for linear velocity
+                self.integral_error_x += linear_error  # Update the integral error for linear velocity
+                linear_velocity = kp_linear * linear_error + ki_linear * 0.1*self.integral_error_x + kd_linear * derivative_error_x / 0.1
+                self.prev_error_x = linear_error  # Update the previous linear error
+            else:
+                derivative_error_x = linear_error - self.prev_error_x  # Calculate the derivative error for linear velocity
+                self.integral_error_x += linear_error  # Update the integral error for linear velocity
+                linear_velocity = kp_linear * linear_error + ki_linear * 0.1*self.integral_error_x + kd_linear * derivative_error_x / 0.1
+                self.prev_error_x = linear_error  # Update the previous linear error
+                self.integral_error_y = 0.0
             # Threshold clauses for stopping at the target
-            if abs(angle_to_target) < 0.01:  # If the bot is facing the target (small angular error)
+            if abs(angular_error) < error_threshold:  # If the bot is facing the target (small angular error)
                 angular_velocity = 0.0  # Stop rotating
-            if distance_to_target < 0.01:  # If the bot is close to the target
+                self.integral_error_y = 0.0  # Reset the integral error for angular velocity
+            if abs(linear_error) < error_threshold:  # If the bot is close to the target
                 linear_velocity = 0.0  # Stop moving
                 angular_velocity = 0.0  # Stop rotating
                 self.integral_error_x = 0.0  # Reset the integral error for linear velocity
-                self.integral_error_y = 0.0  # Reset the integral error for angular velocity
-
+        
         else:  # If the bot does not have a target
             target1 = self.target_coordinates[f'artist{self.i - 1}']  # Get the target of the previous bot
-            if self.i == 30:
+            if self.i == (bots):
                 target2 = self.target_coordinates[f'artist{1}']  # Wrap around to the first bot for bot 30
             else:
                 target2 = self.target_coordinates[f'artist{self.i + 1}']  # Get the target of the next bot
@@ -106,38 +113,33 @@ class ArtistBot(Node):
 
             angle_to_midpoint = math.atan2(math.sin(angle_to_midpoint), math.cos(angle_to_midpoint))  # Normalize the angle to the midpoint
 
-            # Same PID controller gains as before
-            kp_linear = 0.5
-            ki_linear = 0.0001
-            kd_linear = 0.2
-            kp_angular = 4.0
-            ki_angular = 0.0002
-            kd_angular = 0.3
-
             linear_error = distance_to_midpoint  # Linear error is the distance to the midpoint
             angular_error = angle_to_midpoint - current_position[2]  # Angular error is the difference between the angle to the midpoint and the current orientation
 
-            derivative_error_x = linear_error - self.prev_error_x  # Calculate the derivative error for linear velocity
-            derivative_error_y = angular_error - self.prev_error_y  # Calculate the derivative error for angular velocity
-
-            self.integral_error_x += linear_error  # Update the integral error for linear velocity
-            self.integral_error_y += angular_error  # Update the integral error for angular velocity
-
             # Calculate linear and angular velocities using PID controller
-            angular_velocity = kp_angular * angular_error + ki_angular * self.integral_error_y + kd_angular * derivative_error_y
-            linear_velocity = kp_linear * linear_error + ki_linear * self.integral_error_x + kd_linear * derivative_error_x
-
-            self.prev_error_x = linear_error  # Update the previous linear error
-            self.prev_error_y = angular_error  # Update the previous angular error
-
+            if abs(angular_error) > error_threshold:
+                derivative_error_y = angular_error - self.prev_error_y  # Calculate the derivative error for angular velocity
+                self.integral_error_y += angular_error  # Update the integral error for angular velocity
+                angular_velocity = kp_angular * angular_error + ki_angular * 0.1* self.integral_error_y + kd_angular * derivative_error_y / 0.1
+                self.prev_error_y = angular_error  # Update the previous angular error
+                derivative_error_x = linear_error - self.prev_error_x  # Calculate the derivative error for linear velocity
+                self.integral_error_x += linear_error  # Update the integral error for linear velocity
+                linear_velocity = kp_linear * linear_error + ki_linear * 0.1*self.integral_error_x + kd_linear * derivative_error_x / 0.1
+                self.prev_error_x = linear_error  # Update the previous linear error
+            else:
+                derivative_error_x = linear_error - self.prev_error_x  # Calculate the derivative error for linear velocity
+                self.integral_error_x += linear_error  # Update the integral error for linear velocity
+                linear_velocity = kp_linear * linear_error + ki_linear * 0.1*self.integral_error_x + kd_linear * derivative_error_x / 0.1
+                self.prev_error_x = linear_error  # Update the previous linear error
+                self.integral_error_y = 0.0
             # Threshold clauses for stopping at the midpoint
-            if abs(angle_to_midpoint) < 0.01:  # If the bot is facing the midpoint (small angular error)
+            if abs(angular_error) < error_threshold:  # If the bot is facing the midpoint (small angular error)
                 angular_velocity = 0.0  # Stop rotating
-            if distance_to_midpoint < 0.01:  # If the bot is close to the midpoint
+                self.integral_error_y = 0.0  # Reset the integral error for angular velocity
+            if abs(linear_error) < error_threshold:  # If the bot is close to the midpoint
                 linear_velocity = 0.0  # Stop moving
                 angular_velocity = 0.0  # Stop rotating
                 self.integral_error_x = 0.0  # Reset the integral error for linear velocity
-                self.integral_error_y = 0.0  # Reset the integral error for angular velocity
 
         twist_msg = Twist()  # Create a new Twist message
         twist_msg.linear.x = linear_velocity  # Set the linear velocity in the twist message
@@ -148,7 +150,7 @@ def main(args=None):
     rclpy.init(args=args)  # Initialize the ROS Python client library with the provided arguments
 
     target_coordinates_list = {}  # Create an empty dictionary to store target coordinates
-    for i in range(1, 31):  # Loop through bot numbers 1 to 30
+    for i in range(1, bots+1):  # Loop through bot numbers 1 to 30
         bot_name = f'artist{i}'  # Construct the bot name
         if (i % 2) != 0:  # Check if the bot number is odd
             target_coordinates_list[bot_name] = [1, 1]  # Set a default target position for odd-numbered bots

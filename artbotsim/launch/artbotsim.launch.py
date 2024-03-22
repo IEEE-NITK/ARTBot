@@ -4,7 +4,7 @@ from launch.actions import DeclareLaunchArgument, ExecuteProcess, OpaqueFunction
 from launch.substitutions import LaunchConfiguration, TextSubstitution
 from launch.substitutions import FindExecutable
 
-number_of_bots = 30
+number_of_bots = 50
 
 def generate_launch_description():
     ld = LaunchDescription()
@@ -21,13 +21,13 @@ def generate_launch_description():
             " service call ",
             "/artist1/teleport_absolute ",
             "artbotsim/srv/TeleportAbsolute ",
-            TextSubstitution(text="\"{'x': 2, 'y': 10, 'theta': 0}\"")
+            TextSubstitution(text="\"{'x': 2, 'y': 14, 'theta': 0}\"")
         ]],
         shell=True
     )
     ld.add_action(move_bot)
 
-    x, y = 4, 10
+    x, y = 4, 14
 
     for i in range(1, number_of_bots):
         spawn_bot = ExecuteProcess(

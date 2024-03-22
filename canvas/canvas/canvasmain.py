@@ -12,7 +12,7 @@ class artbotcanvas(Node):
         self.mouse_dragging = False
         self.path = []
         self.collect_points = []
-        self.total_segment_points = 30
+        self.total_segment_points = 50
         self.target_publisher = self.create_publisher(Target, 'target', 10)
 
         self.display_image = np.ones((810, 990, 3)) * 255

@@ -87,3 +87,63 @@ uint16 target29_y
 
 uint16 target30_x
 uint16 target30_y
+
+uint16 target31_x
+uint16 target31_y
+
+uint16 target32_x
+uint16 target32_y
+
+uint16 target33_x
+uint16 target33_y
+
+uint16 target34_x
+uint16 target34_y
+
+uint16 target35_x
+uint16 target35_y
+
+uint16 target36_x
+uint16 target36_y
+
+uint16 target37_x
+uint16 target37_y
+
+uint16 target38_x
+uint16 target38_y
+
+uint16 target39_x
+uint16 target39_y
+
+uint16 target40_x
+uint16 target40_y
+
+uint16 target41_x
+uint16 target41_y
+
+uint16 target42_x
+uint16 target42_y
+
+uint16 target43_x
+uint16 target43_y
+
+uint16 target44_x
+uint16 target44_y
+
+uint16 target45_x
+uint16 target45_y
+
+uint16 target46_x
+uint16 target46_y
+
+uint16 target47_x
+uint16 target47_y
+
+uint16 target48_x
+uint16 target48_y
+
+uint16 target49_x
+uint16 target49_y
+
+uint16 target50_x
+uint16 target50_y
