@@ -5,6 +5,7 @@
 ![Ubuntu](https://img.shields.io/badge/Ubuntu%2022.04-%E2%9C%94-blue)
 ![ROS2 Iron](https://img.shields.io/badge/ROS2%20Iron-%E2%9C%94-blue)
 
+![ARTBots in Action](assets/artbot_main.jpeg)
 <br>
 <details>
   <summary>Table of Contents</summary>
@@ -38,6 +39,18 @@
                 </ul>    
         </li>
         <li>
+            <a href="#implementation">Implementation</a>
+                <ul>
+                    <li><a href="#swarm-algorithm-flock-formation-algorithm">Swarm Algorithm: Floack Formation Algorithm</a></li>
+                    <li><a href="#swarm-algorithm-boids-algorithm">Swarm Algorithm: Boid's Algorithm</a></li>
+                    <li><a href="#canvas">Canvas</a></li>
+                    <li><a href="#simulation">Simulation</a></li>
+                </ul>
+        </li>
+        <li>
+            <a href="#results">Results</a>
+        </li>
+        <li>
             <a href="#references">References</a> 
         </li>
         <li>
@@ -65,7 +78,7 @@
 This project seeks to develop an application of swarm robotics by creating a swarm of robots that can autonomously arrange themselves to replicate drawings made by a user. The proposed system leverages swarm intelligence to translate artistic expressions into a visually stunning and collaborative robotic display.
 
 ### Technologies Used
-[![Tech_Used](https://skills.thijs.gg/icons?i=ros,py,cpp&theme=dark)](https://skills.thijs.gg)
+[![Tech_Used](https://skills.thijs.gg/icons?i=ros,py,cpp,opencv,qt&theme=dark)](https://skills.thijs.gg)
 
 ## Literature Survey
 
@@ -138,7 +151,7 @@ To launch the ARTBot simulation use the command
 ros2 launch artbotsim artbotsim.launch.py
 ```
 
-![Alt text](assets/artbotsim.png)
+![Alt text](assets/simulation.png)
 <br>
 *ARTBot Simulation*
 
@@ -149,7 +162,19 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --remap cmd_vel:
 ```
 ## Implementation
 
-### Swarm Algorithm: 
+### Swarm Algorithm: Flock Formation Algorithm
+
+The algorithm operates within a simulation
+environment where only the current position and orientation of the bots are sensed in real-time.
+
+The algorithm involves a swarm of robotic agents, each equipped to navigate and coordinate with its peers autonomously. The swarm is divided into two groups:
+- The target-seeking bots are assigned specific targets or coordinates to
+move towards, simulating the behavior of birds homing in on particular locations within a flock. 
+- The integrating bots dynamically position themselves between pairs of "parent bots," facilitating cohesion and formation maintenance within the swarm. 
+
+Each "child bot" is assigned specific "parent bots," between which it positions itself. This
+arrangement ensures that the "child bots" contribute to the overall shape formation by
+maintaining optimal spacing and alignment within the swarm.
 
 ### Swarm Algorithm: Boid's Algorithm
 
@@ -171,7 +196,17 @@ The user interface for the project (the canvas) is made using a simple python3 s
 
 The drawing is made by handling mouse clicks and mouse movement events which can be done using the mouse event handling feature of opencv.
 
-To process and transfer the image from the canvas to the artbot simulation, the user just needs to use the right mouse button.
+To process and transfer the image from the canvas to the artbot simulation, the user just needs to use the right mouse button. Once the right mouse button is pressed, targets are assigned in an equi distant manner for the drawing and is trnsferred to the bots.
+
+![Canvas](assets/canvas.png)
+
+### Simulation
+
+The project uses a customized turtlesim environment that is built on Qt (a cross-platform software for creating GUI).
+
+## Results
+
+Here is a video of one of the runs.
 
 ## References
 
