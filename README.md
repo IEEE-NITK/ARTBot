@@ -208,6 +208,8 @@ The project uses a customized turtlesim environment that is built on Qt (a cross
 
 Here is a video of one of the runs.
 
+https://github.com/IEEE-NITK/ARTBot/assets/97270737/5b0e4868-ec83-44af-998f-3ea33abb24d3
+
 ## References
 
 1. [ROS 2 Wiki](https://docs.ros.org/en/iron/index.html)
